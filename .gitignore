@@ -1,0 +1,5 @@
+#db data
+pg_data
+
+#envs
+dev.env

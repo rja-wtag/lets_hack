@@ -1,0 +1,41 @@
+services:
+
+  app:
+    image: ${IP_ADDR}:8093/hack_service_initialization:${ENV}-snapshot-${DOCKER_IMAGE_VERSION}
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PROFILE=${ENV}
+    env_file:
+      - ${ENV}.env
+    command: sh -c "alembic -c backend/alembic.ini upgrade head &&
+      python -m backend.hack_service_cli hack_service_initialization --env=$${PROFILE} --persist"
+    ports:
+      - "8000:8000"
+    networks:
+      - hack-service
+
+  db:
+    image: postgres:17.2
+    restart: always
+    env_file:
+      - ${ENV}.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    networks:
+      - hack-service
+
+networks:
+  hack-service:
+
+volumes:
+  pg_data:

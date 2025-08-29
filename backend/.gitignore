@@ -1,0 +1,9 @@
+__pycache__
+
+.idea
+/log/**
+pg_data/**
+.coverage
+
+#envs
+dev.env
