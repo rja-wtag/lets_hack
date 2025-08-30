@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from backend.api.v1.router import router as v1_router
@@ -59,7 +59,8 @@ def create_app() -> FastAPI:
     async def global_exception_handler(request: Request, exc: Exception):
         app_logger.error(f"Global exception: {exc}")
         return JSONResponse(
-            status_code=500, content={"message": "Internal server error"}
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"},
         )
 
     return app
