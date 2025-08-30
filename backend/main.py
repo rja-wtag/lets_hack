@@ -47,12 +47,12 @@ def create_app() -> FastAPI:
 
     @app.get("/", tags=["Main"])
     @limiter.limit(f"{PUBLIC_API_LIMIT}/minute")
-    async def root():
+    async def root(request: Request):
         return {"message": f"Welcome to {settings.app_name}"}
 
     @app.get("/health", tags=["Main"])
     @limiter.limit(f"{PUBLIC_API_LIMIT}/minute")
-    async def health_check():
+    async def health_check(request: Request):
         return {"status": "healthy", "version": "1.0.0"}
 
     @app.exception_handler(Exception)
