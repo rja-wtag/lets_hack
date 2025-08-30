@@ -1,8 +1,12 @@
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+
 class AsyncIteratorWrapper:
     """The following is a utility class that transforms a
-        regular iterable to an asynchronous one.
+    regular iterable to an asynchronous one.
 
-        link: https://www.python.org/dev/peps/pep-0492/#example-2
+    link: https://www.python.org/dev/peps/pep-0492/#example-2
     """
 
     def __init__(self, obj):
@@ -17,3 +21,6 @@ class AsyncIteratorWrapper:
         except StopIteration:
             raise StopAsyncIteration
         return value
+
+
+limiter = Limiter(key_func=get_remote_address)

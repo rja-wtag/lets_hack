@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 from backend.api.v1.router import router as v1_router
 from backend.config.settings import get_settings
 from backend.database.base import DatabaseManager
+from backend.helpers.constants import PUBLIC_API_LIMIT
+from backend.helpers.utility import limiter
 from backend.middleware.cors import setup_cors
 from backend.middleware.logging import LoggingMiddleware, app_logger
 
@@ -30,9 +32,10 @@ def create_app() -> FastAPI:
     settings = get_settings()
 
     app = FastAPI(
+        root_path="/backend",
         title=settings.app_name,
         debug=settings.debug,
-        lifespan=lifespan
+        lifespan=lifespan,
     )
 
     # middleware
@@ -43,10 +46,12 @@ def create_app() -> FastAPI:
     app.include_router(v1_router, prefix=settings.api_v1_prefix)
 
     @app.get("/", tags=["Main"])
+    @limiter.limit(f"{PUBLIC_API_LIMIT}/minute")
     async def root():
         return {"message": f"Welcome to {settings.app_name}"}
 
     @app.get("/health", tags=["Main"])
+    @limiter.limit(f"{PUBLIC_API_LIMIT}/minute")
     async def health_check():
         return {"status": "healthy", "version": "1.0.0"}
 
@@ -54,8 +59,7 @@ def create_app() -> FastAPI:
     async def global_exception_handler(request: Request, exc: Exception):
         app_logger.error(f"Global exception: {exc}")
         return JSONResponse(
-            status_code=500,
-            content={"message": "Internal server error"}
+            status_code=500, content={"message": "Internal server error"}
         )
 
     return app
@@ -71,5 +75,5 @@ if __name__ == "__main__":
         factory=True,
         host=settings.host,
         port=settings.port,
-        reload=settings.debug
+        reload=settings.debug,
     )

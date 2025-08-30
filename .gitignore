@@ -3,3 +3,6 @@ pg_data
 
 #envs
 dev.env
+
+#machine
+.idea
