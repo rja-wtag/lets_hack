@@ -8,13 +8,12 @@ Base = declarative_base()
 
 
 class DatabaseManager:
-
     def __init__(self, database_url: str):
         self.database_url = database_url
-        self.engine = create_engine(
-            database_url
+        self.engine = create_engine(database_url)
+        self.SessionLocal = sessionmaker(
+            autocommit=False, autoflush=False, bind=self.engine
         )
-        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
     def create_tables(self):
         Base.metadata.create_all(bind=self.engine)
